@@ -1,0 +1,8 @@
+admin, Register Users with task_manager.py, Use task_manager.py to add the usernames and passwords for all team members that will be using this program., 2019-10-19, 2019-10-20, No
+admin, Assign initial tasks, Use task_manager.py to assign each team member with appropriate tasks, 2019-10-19, 2019-10-25, No
+q, Welcome to Task Manager, You have been registered successfully!, 2024-05-26, 2024-05-26, Yes
+John, Please update your details, You are required to update your profile before adding new tasks., 2024-11-30, 2024-05-26, No
+admin, Prepare for tasks, Please add some tasks, 2024-10-11, 2024-05-26, No
+x, WARNING!, User does not exit. Please regitser the user to the program., 2024-05-26, 2024-05-26, No
+q, check your tasks, Check due dates , 2024-07-01, 2024-06-03, No
+John, jijg, jidg hijdgj dgnighdjig dhnidgij gjidghj hgji, 2024-06-20, 2024-06-07, No

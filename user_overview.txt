@@ -1,0 +1,28 @@
+User: admin
+            Assigned Tasks:             3
+            Assigned Task Percentage:   37.5%
+            Completed Task Percentage:  0.0%
+            Incomplete Task Percentage: 37.5%
+            Overdue Task Percentage:    25.0%
+----------------------------------------------------------
+User: q
+            Assigned Tasks:             2
+            Assigned Task Percentage:   25.0%
+            Completed Task Percentage:  12.5%
+            Incomplete Task Percentage: 12.5%
+            Overdue Task Percentage:    0.0%
+----------------------------------------------------------
+User: wes
+            Assigned Tasks:             0
+            Assigned Task Percentage:   0.0%
+            Completed Task Percentage:  0.0%
+            Incomplete Task Percentage: 0.0%
+            Overdue Task Percentage:    0.0%
+----------------------------------------------------------
+User: John
+            Assigned Tasks:             2
+            Assigned Task Percentage:   25.0%
+            Completed Task Percentage:  0.0%
+            Incomplete Task Percentage: 25.0%
+            Overdue Task Percentage:    0.0%
+----------------------------------------------------------
