@@ -93,6 +93,201 @@ def check_date(date):
         return False
 
 
+def register():
+    """
+    This function will register new users and adding them
+    to the text file.
+    """
+    # Perform input validation to ensure that new users are registered to the text file correctly
+    while True:
+        new_username = input("Please enter new username: ")
+        new_password = input("Please enter new password: ")
+        confirm_password = input("Please confirm new password: ")
+
+        if new_username == "":
+            print("Username cannot be empty. Please enter at least 1 character.\n")
+
+        elif new_username in check_usernames():
+            print("Username already exists! Please enter a unique username\n")
+
+        elif new_password == "":
+            print("Password cannot be empty. Please enter at least 1 character.\n")
+
+        elif new_password != confirm_password:
+            print("Passwords do not match! Please try again...\n")
+
+        elif new_username != "" and new_password != "" and new_password == confirm_password:
+            with open("user.txt", "a") as file:
+                file.writelines(f"\n{new_username}, {new_password}")
+            print("\nRegistration Successful!\n")
+            break
+
+
+def add_task():
+    """
+    This function will add new tasks to the text file tasks.txt
+    """
+
+    assignee = input("Enter the username you are assigning the task to: ")
+    title = input("Title: ")
+    description = input("Description: ")
+    due_date = input("Due Date (YYYY-MM-DD) | (i.e. 2024-06-20): ")
+    current_date = datetime.datetime.today().date()
+    task_status = "No"
+
+    # Print warning message if user does not exist in the text file
+    if assignee not in check_usernames():
+        print("\nWARNING!\nUser does not exist!")
+
+    # Checks if date is valid before writing it to the text file
+    if check_date(due_date):
+
+        with open("tasks.txt", "a") as write_file:
+            write_file.writelines(f"\n{assignee}, {title}, {description}, {due_date}, {current_date}, {task_status}")
+
+        print("Task Added!\n\n")
+
+    else:
+        print("Invalid Date Format! Please enter a valid due date!\n\n")
+
+
+def view_all():
+    """
+    This function will view all the tasks from the tasks.txt file
+    """
+
+    with open("tasks.txt", "r+") as read_file:
+        information = read_file.readlines()
+
+    count = 1
+    for task in information:
+        task_info = task.split(", ")
+
+        print("----------------------------------------")
+        print(f"""Task #{count}
+    Assignee:       {task_info[0]}
+    Title:          {task_info[1]}
+    Description:    {task_info[2]}
+    Due Date:       {task_info[3]}
+    Assigned Date:  {task_info[4]}
+    Completed:      {task_info[5]}
+    """)
+        count += 1
+    print("----------------------------------------\n")
+
+
+def view_mine():
+    """
+    This function will view all the tasks of the user logged in
+    and allow them to edit tasks or mark tasks as completed.
+    """
+
+    with open("tasks.txt", "r+") as read_file:
+        information = read_file.readlines()
+
+    user_tasks = {}
+    count = 1
+
+    for task in information:
+        task_info = task.split(", ")
+
+        if username == task_info[0]:
+            user_tasks[count - 1] = task_info
+
+            print("----------------------------------------")
+            print(f"""Task #{count}
+    Assignee:       {task_info[0]}
+    Title:          {task_info[1]}
+    Description:    {task_info[2]}
+    Due Date:       {task_info[3]}
+    Assigned Date:  {task_info[4]}
+    Completed:      {task_info[5]}
+    """)
+        count += 1
+
+    print("----------------------------------------\n")
+
+    try:
+        task_number = int(input("Choose a task number to edit or mark a task as complete: (Enter -1 to "
+                                "return to menu): "))
+
+        if task_number == -1:
+            print()
+
+        elif (task_number - 1) in user_tasks:
+            task_choice = int(input("Choose between 1 - 2:\n1. Mark as Complete\n2. Edit Task\n: "))
+
+            # Marks the task complete
+            if task_choice == 1 and "No" in user_tasks[task_number - 1][5]:
+                user_tasks[task_number - 1][5] = "Yes\n"
+                print("Task Completed!\n\n")
+
+            elif task_choice == 1 and "Yes" in user_tasks[task_number - 1][5]:
+                print("Task Already Completed!\n\n")
+
+            # Edits the task
+            elif task_choice == 2 and "No" in user_tasks[task_number - 1][5]:
+                new_assignee = input("Enter a user to reassign this task to: (Leave Empty to Skip)"
+                                     "\n: ")
+                new_due_date = input("Enter new due date of this task (YYYY-MM-DD): (Leave Empty to Skip)\n: ")
+
+                # Does not edit the task and returns to the menu
+                if new_assignee == "" and new_due_date == "":
+                    print("Task Not Edited!!\n\n")
+
+                if new_due_date != "":
+
+                    # Checks if the due date is valid before changing it
+                    if check_date(new_due_date) == True:
+                        user_tasks[task_number - 1][3] = new_due_date
+
+                    else:
+                        print("Invalid Date Format! Please enter a valid due date!\n\n")
+
+                if new_assignee != "":
+
+                    # Checks if user exists before reassigning task
+                    if new_assignee in check_usernames():
+                        user_tasks[task_number - 1][0] = new_assignee
+
+                    else:
+                        print("Unable to reassign task! User does not exist!\n\n")
+
+                print("Task Edited Successfully!!\n\n")
+
+            elif task_choice == 2 and "Yes" in user_tasks[task_number - 1][5]:
+                print("Cannot edit complete tasks. Please choose a different task.\n\n")
+
+            else:
+                print("Invalid Option! Please choose between 1 - 2.\n\n")
+
+        else:
+            print("Invalid Choice!\nPlease select a valid task number!\n\n")
+
+        count = 1
+
+        # Update task information
+        for task in information:
+            for index in user_tasks:
+
+                if count == (index + 1):
+                    task_info = ", ".join(user_tasks[index])
+
+                    information[index] = task_info
+
+            count += 1
+
+        with open("tasks.txt", "w") as write_file:
+            for task in information:
+                write_file.write(f"{task}")
+
+    except IndexError:
+        print("Task does not exist...\nPlease select an existing task number!\n\n")
+
+    except ValueError:
+        print("Invalid Choice!\nPlease select a valid task number!\n\n")
+
+
 def generate_report():
     """
     Generates the user and task overview text files from the user.txt and tasks.txt files
@@ -223,6 +418,33 @@ Percentage of Overdue Tasks: {task_information[5]}%\n""")
     print("Reports Generated!\n\n")
 
 
+def display_statistics():
+    """
+    This function will print the statistics about all the users
+    and tasks created in the text files.
+    """
+    total_tasks = 0
+    total_users = 0
+
+    with open("tasks.txt", "r+") as read_file:
+        total_tasks = len(read_file.readlines())
+
+    with open("user.txt", "r+") as read_file:
+        total_users = len(read_file.readlines())
+
+    print("Total Number of Users:", total_users)
+
+    with open("task_overview.txt", "r+") as read_file:
+        task_overview = read_file.readlines()
+        for line in task_overview:
+            print(line)
+
+    with open("user_overview.txt", "r+") as read_file:
+        user_overview = read_file.readlines()
+        for line in user_overview:
+            print(line)
+
+
 # Call the function to generate reports by default
 generate_report()
 
@@ -255,185 +477,19 @@ e - exit
 
     # Registers new users to the program
     if menu == 'r' and username == "admin":
-        with open("user.txt", "r+") as read_file:
-            information = read_file.readlines()
-
-        # Perform input validation to ensure that new users are regisered to the text file correctly
-        while True:
-            new_username = input("Please enter new username: ")
-            new_password = input("Please enter new password: ")
-            confirm_password = input("Please confirm new password: ")
-
-            if new_username == "":
-                print("Username cannot be empty. Please enter at least 1 character.\n")
-
-            elif new_username in check_usernames():
-                print("Username already exists! Please enter a unique username\n")
-
-            elif new_password == "":
-                print("Password cannot be empty. Please enter at least 1 character.\n")
-
-            elif new_password != confirm_password:
-                print("Passwords do not match! Please try again...\n")
-
-            elif new_username != "" and new_password != "" and new_password == confirm_password:
-                with open("user.txt", "a") as file:
-                    file.writelines(f"\n{new_username}, {new_password}")
-                print("\nRegistration Successful!\n")
-                break
+        register()
 
     # Adds new tasks to the program
     elif menu == 'a':
-        assignee = input("Enter the username you are assigning the task to: ")
-        title = input("Title: ")
-        description = input("Description: ")
-        due_date = input("Due Date (YYYY-MM-DD) | (i.e. 2024-06-20): ")
-        current_date = datetime.datetime.today().date()
-        task_status = "No"
-
-        # Print warning message if user does not exist in the text file
-        if assignee not in check_usernames():
-            print("\nWARNING!\nUser does not exist!")
-
-        # Checks if date is valid before writing it to the text file
-        if check_date(due_date):
-
-            with open("tasks.txt", "a") as write_file:
-                write_file.writelines(f"\n{assignee}, {title}, {description}, {due_date}, {current_date}, {task_status}")
-
-            print("Task Added!\n\n")
-
-        else:
-            print("Invalid Date Format! Please enter a valid due date!\n\n")
+        add_task()
 
     # Prints all of the user tasks added to the program
     elif menu == 'va':
-        with open("tasks.txt", "r+") as read_file:
-            information = read_file.readlines()
-
-        count = 1
-        for task in information:
-            task_info = task.split(", ")
-
-            print("----------------------------------------")
-            print(f"""Task #{count}
-Assignee:       {task_info[0]}
-Title:          {task_info[1]}
-Description:    {task_info[2]}
-Due Date:       {task_info[3]}
-Assigned Date:  {task_info[4]}
-Completed:      {task_info[5]}
-""")
-            count += 1
-        print("----------------------------------------\n")
+        view_all()
 
     # Prints all the tasks added to the program of the logged in user
     elif menu == 'vm':
-        with open("tasks.txt", "r+") as read_file:
-            information = read_file.readlines()
-
-        user_tasks = {}
-        count = 1
-
-        for task in information:
-            task_info = task.split(", ")
-
-            if username == task_info[0]:
-
-                user_tasks[count-1] = task_info
-
-                print("----------------------------------------")
-                print(f"""Task #{count}
-Assignee:       {task_info[0]}
-Title:          {task_info[1]}
-Description:    {task_info[2]}
-Due Date:       {task_info[3]}
-Assigned Date:  {task_info[4]}
-Completed:      {task_info[5]}
-""")
-            count += 1
-
-        print("----------------------------------------\n")
-
-        try:
-            task_number = int(input("Choose a task number to edit or mark a task as complete: (Enter -1 to "
-                                    "return to menu): "))
-
-            if task_number == -1:
-                print()
-
-            elif (task_number - 1) in user_tasks:
-                task_choice = int(input("Choose between 1 - 2:\n1. Mark as Complete\n2. Edit Task\n: "))
-
-                # Marks the task complete
-                if task_choice == 1 and "No" in user_tasks[task_number - 1][5]:
-                    user_tasks[task_number - 1][5] = "Yes\n"
-                    print("Task Completed!\n\n")
-
-                elif task_choice == 1 and "Yes" in user_tasks[task_number - 1][5]:
-                    print("Task Already Completed!\n\n")
-
-                # Edits the task
-                elif task_choice == 2 and "No" in user_tasks[task_number - 1][5]:
-                    new_assignee = input("Enter a user to reassign this task to: (Leave Empty to Skip)"
-                                         "\n: ")
-                    new_due_date = input("Enter new due date of this task (YYYY-MM-DD): (Leave Empty to Skip)\n: ")
-
-                    # Does not edit the task and returns to the menu
-                    if new_assignee == "" and new_due_date == "":
-                        print("Task Not Edited!!\n\n")
-
-                    if new_due_date != "":
-
-                        # Checks if the due date is valid before changing it
-                        if check_date(new_due_date) == True:
-                            user_tasks[task_number - 1][3] = new_due_date
-
-                        else:
-                            print("Invalid Date Format! Please enter a valid due date!\n\n")
-
-                    if new_assignee != "":
-
-                        # Checks if user exists before reassigning task
-                        if new_assignee in check_usernames():
-                            user_tasks[task_number - 1][0] = new_assignee
-
-                        else:
-                            print("Unable to reassign task! User does not exist!\n\n")
-
-                    print("Task Edited Successfully!!\n\n")
-
-                elif task_choice == 2 and "Yes" in user_tasks[task_number - 1][5]:
-                    print("Cannot edit complete tasks. Please choose a different task.\n\n")
-
-                else:
-                    print("Invalid Option! Please choose between 1 - 2.\n\n")
-
-            else:
-                print("Invalid Choice!\nPlease select a valid task number!\n\n")
-
-            count = 1
-
-            # Update task information
-            for task in information:
-                for index in user_tasks:
-
-                    if count == (index + 1):
-                        task_info = ", ".join(user_tasks[index])
-
-                        information[index] = task_info
-
-                count += 1
-
-            with open("tasks.txt", "w") as write_file:
-                for task in information:
-                    write_file.write(f"{task}")
-
-        except IndexError:
-            print("Task does not exist...\nPlease select an existing task number!\n\n")
-
-        except ValueError:
-            print("Invalid Choice!\nPlease select a valid task number!\n\n")
+        view_mine()
 
     # Generates the reports
     elif menu == 'gr':
@@ -441,26 +497,7 @@ Completed:      {task_info[5]}
 
     # Prints the statistics of the users and tasks in the program
     elif menu == 'ds' and username == "admin":
-        total_tasks = 0
-        total_users = 0
-
-        with open("tasks.txt", "r+") as read_file:
-            total_tasks = len(read_file.readlines())
-
-        with open("user.txt", "r+") as read_file:
-            total_users = len(read_file.readlines())
-
-        print("Total Number of Users:", total_users)
-
-        with open("task_overview.txt", "r+") as read_file:
-            task_overview = read_file.readlines()
-            for line in task_overview:
-                print(line)
-
-        with open("user_overview.txt", "r+") as read_file:
-            user_overview = read_file.readlines()
-            for line in user_overview:
-                print(line)
+        display_statistics()
 
     elif menu == 'e':
         print('Goodbye!!!')
