@@ -47,6 +47,7 @@ e - exit
 ### Register a User
 This option will register new unique users onto the program by entering their username and password.
 This option is admin-only and cannot be accessed by non-admin users!
+
 ![Screenshot](images/2_register.png)
 
 ### Add Task
