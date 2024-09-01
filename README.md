@@ -41,6 +41,7 @@ vm - view my tasks
 gr - generate statistics
 ds - display statistics 
 e - exit
+
 ![Screenshot](images/1_login.png)
 
 ### Register a User
@@ -50,14 +51,17 @@ This option is admin-only and cannot be accessed by non-admin users!
 
 ### Add Task
 This option will add new tasks for users to complete by a certain due date. 
-![Screenshot](images/3_add.png)
+
+![Screenshot](images/3-add.png)
 
 ### View All Tasks
-This option displays the task details for all users in the program.  
+This option displays the task details for all users in the program.
+
 ![Screenshot](images/4_view_all.png)
 
 ### View All Tasks
 This option displays the task details for the user logged in to the program and then requests the user to either mark the task as complete or edit the task by changing the assignee of the user or the due date of the task. 
+
 ![Screenshot](images/5_view_mine_1.png)
 ![Screenshot](images/5_view_mine_2.png)
 
@@ -69,11 +73,13 @@ The statistics include:
 - Total Numbers of Complete/Incomplete/Overdue Tasks.
 - Percentage of Incomplete & Overdue Tasks.
 - User statistics on assigned tasks and their completion report.
+
 ![Screenshot](images/6_generate.png)
 
 ### Display Statistics
 This option will display all of the statistics generated in the program.
 This option is admin-only and cannot be accessed by non-admin users!
+
 ![Screenshot](images/7_display.png)
 
 ### Exit
