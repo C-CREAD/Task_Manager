@@ -1,5 +1,5 @@
 """
-CAPSTONE PROJECT III - task_manager.py: V2.5 (No Database)
+CAPSTONE PROJECT III - task_manager.py: V1.5 (No Database)
 
 This project is the complete version of the task manager v2.0 with the Flask Web Framework implemented.
 
