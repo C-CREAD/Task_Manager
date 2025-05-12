@@ -1,5 +1,5 @@
 """
-CAPSTONE PROJECT III - task_manager.py: V1.5 (No Database)
+CAPSTONE PROJECT III - task_manager.py: V2.5 (No Database)
 
 This project is the complete version of the task manager v2.0 with the Flask Web Framework implemented.
 
@@ -12,11 +12,12 @@ from datetime import datetime, timedelta
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
+import secrets
 
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
+app.secret_key = secrets.token_hex(16)
 
 # Store permanent session data for 5 minutes
 app.permanent_session_lifetime = timedelta(minutes=10)
