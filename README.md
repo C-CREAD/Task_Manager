@@ -51,9 +51,9 @@ Once Docker Desktop is installed, follow the instructions below:
      docker run -d -p 3000:3000 ccread/task_manager:flask
      ```
    In your Docker Desktop, you will see the container of the image running. Click on the port 3000:3000 to be redirected to your browser or you can still go to your browser and enter this link:
-     ```
+     ```sh
      http://localhost:3000/
-     ```.
+     ```
 
 #### Docker Playground
 1. To pull the docker image:
