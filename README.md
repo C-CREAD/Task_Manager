@@ -102,5 +102,5 @@ This option will generate the statistics of all the users and tasks, store them 
 ## Credits
 Shingai Dzinotyiweyi [GitHub Profile](https://github.com/C-CREAD)
 
-[Repository Link:](https://github.com/C-CREAD/Task_Manager) 
+[Repository Link:]([https://github.com/C-CREAD/Task_Manager](https://github.com/C-CREAD/Task_Manager/tree/flask_v1.5)) 
 
