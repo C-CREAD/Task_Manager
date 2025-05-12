@@ -1,0 +1,64 @@
+{% extends "index.html" %}
+
+{% block title %}Edit Task{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Edit Task</h2>
+
+                <div class="mb-4">
+                    <h5>Current Task Details</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Title:</strong> {{ task[1] }}</li>
+                        <li class="list-group-item"><strong>Description:</strong> {{ task[2] }}</li>
+                        <li class="list-group-item"><strong>Due Date:</strong> {{ task[3] }}</li>
+                        <li class="list-group-item"><strong>Status:</strong>
+                            {% if task[5] == 'Yes' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+
+                <form method="POST" action="{{ url_for('edit_task', task_id=task_id) }}">
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="mark_complete" name="mark_complete"
+                                   {% if task[5] == 'Yes' %}disabled{% endif %}>
+                            <label class="form-check-label" for="mark_complete">
+                                Mark as Complete
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="new_assignee" class="form-label">Reassign To</label>
+                        <select class="form-select" id="new_assignee" name="new_assignee">
+                            <option value="">Keep current assignee</option>
+                            {% for user in users %}
+                                <option value="{{ user }}" {% if user == task[0] %}selected{% endif %}>{{ user }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="new_due_date" class="form-label">New Due Date</label>
+                        <input type="date" class="form-control" id="new_due_date" name="new_due_date"
+                               value="{{ task[3] if task[3] else '' }}">
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('my_tasks') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

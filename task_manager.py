@@ -1,64 +1,25 @@
 """
-CAPSTONE PROJECT III - task_manager.py: V2.00
+CAPSTONE PROJECT III - task_manager.py: V2.5 (No Database)
 
-This program is the complete version of the task manager program that can
-add new users/tasks, edit/view the tasks, and generate the statistics
-behind the tasks created by the user(s).
+This project is the complete version of the task manager v2.0 with the Flask Web Framework implemented.
 
-The user must login to gain access to the program first.
-
-Once logged in, provide the user with menu options to perform the following:
-    r - register a new unique user to the user.txt file
-    a - add new user tasks to the tasks.txt file
-    va - view all tasks from the tasks.txt file
-    vm - view the tasks of the logged in user from the tasks.txt file
-         edits the user's specific tasks and can mark them as complete
-    gr - generates the task and user overview text files containing the
-         generated statistics of the task information for each user.
-    ds - display the total number of users and tasks in the program from
-         the user.txt and tasks.txt files
-    e - exit the program safely
+NOTE: To keep things simpler, there will not be any databases used as this project will continue to use
+text files that were part of the v2.0. Databases will only be introduced in future versions of this project
+(perhaps in v3.0).
 """
-import datetime
+import os
+from datetime import datetime, timedelta
+from flask import Flask, redirect, url_for, render_template, request, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
 
+load_dotenv()
 
-def login():
+app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY')
 
-    """
-    Requests the user to login with their credentials before accessing the program
-    :return: String username
-    """
-    # Open user text file to acquire all user credentials
-    with open("user.txt", "r+") as file:
-        information = file.readlines()
-
-    valid_attempts = 3
-
-    # Perform input validation of the user's credentials with valid attempts remaining
-    while valid_attempts != 0:
-        username = input("Please enter your username: ")
-        password = input("Please enter your password: ")
-
-        # Checks all of the known users in the text file to validate username and password
-        for credentials in information:
-            user_info = credentials.split(", ")
-            user_info = "\n".join(user_info)
-            user_info = user_info.split()
-
-            # Return the user's username upon successful login
-            if username in user_info and password == user_info[1]:
-                print("Login successful!\n")
-                return username
-
-        # Requests the user to try again for failed login
-        valid_attempts -= 1
-        print("Invalid username or password! Please try again...\n")
-    print("\nToo many invalid attempts!\nExiting program...")
-    return None
-
-
-# Calls login function before displaying the main menu
-username = login()
+# Store permanent session data for 5 minutes
+app.permanent_session_lifetime = timedelta(minutes=10)
 
 
 def check_usernames():
@@ -68,7 +29,7 @@ def check_usernames():
     :return: List of usernames in the text file
     """
     usernames = []
-    with open("user.txt", "r+") as file:
+    with open("data/user.txt", "r+") as file:
         information = file.readlines()
 
     for credentials in information:
@@ -82,217 +43,82 @@ def check_usernames():
 def check_date(date):
     """
     Checks if the date format of the date string is valid
-
-    :param date: String date of task
-    :return: Boolean
     """
     try:
-        if datetime.datetime.strptime(date, "%Y-%m-%d").date():
+        if datetime.strptime(date, "%Y-%m-%d").date():
             return True
     except Exception:
         return False
 
 
-def register():
+def get_user_tasks(username):
     """
-    This function will register new users and adding them
-    to the text file.
+    Get all tasks allocated to specific user and display in terminal
     """
-    # Perform input validation to ensure that new users are registered to the text file correctly
-    while True:
-        new_username = input("Please enter new username: ")
-        new_password = input("Please enter new password: ")
-        confirm_password = input("Please confirm new password: ")
+    user_tasks = []
 
-        if new_username == "":
-            print("Username cannot be empty. Please enter at least 1 character.\n")
-
-        elif new_username in check_usernames():
-            print("Username already exists! Please enter a unique username\n")
-
-        elif new_password == "":
-            print("Password cannot be empty. Please enter at least 1 character.\n")
-
-        elif new_password != confirm_password:
-            print("Passwords do not match! Please try again...\n")
-
-        elif new_username != "" and new_password != "" and new_password == confirm_password:
-            with open("user.txt", "a") as file:
-                file.writelines(f"\n{new_username}, {new_password}")
-            print("\nRegistration Successful!\n")
-            break
-
-
-def add_task():
-    """
-    This function will add new tasks to the text file tasks.txt
-    """
-
-    assignee = input("Enter the username you are assigning the task to: ")
-    title = input("Title: ")
-    description = input("Description: ")
-    due_date = input("Due Date (YYYY-MM-DD) | (i.e. 2024-06-20): ")
-    current_date = datetime.datetime.today().date()
-    task_status = "No"
-
-    # Print warning message if user does not exist in the text file
-    if assignee not in check_usernames():
-        print("\nWARNING!\nUser does not exist!")
-
-    # Checks if date is valid before writing it to the text file
-    if check_date(due_date):
-
-        with open("tasks.txt", "a") as write_file:
-            write_file.writelines(f"\n{assignee}, {title}, {description}, {due_date}, {current_date}, {task_status}")
-
-        print("Task Added!\n\n")
-
-    else:
-        print("Invalid Date Format! Please enter a valid due date!\n\n")
-
-
-def view_all():
-    """
-    This function will view all the tasks from the tasks.txt file
-    """
-
-    with open("tasks.txt", "r+") as read_file:
+    with open("data/tasks.txt", "r+") as read_file:
         information = read_file.readlines()
 
-    count = 1
-    for task in information:
-        task_info = task.split(", ")
+        index = 0
 
-        print("----------------------------------------")
-        print(f"""Task #{count}
-    Assignee:       {task_info[0]}
-    Title:          {task_info[1]}
-    Description:    {task_info[2]}
-    Due Date:       {task_info[3]}
-    Assigned Date:  {task_info[4]}
-    Completed:      {task_info[5]}
-    """)
-        count += 1
-    print("----------------------------------------\n")
-
-
-def view_mine():
-    """
-    This function will view all the tasks of the user logged in
-    and allow them to edit tasks or mark tasks as completed.
-    """
-
-    with open("tasks.txt", "r+") as read_file:
-        information = read_file.readlines()
-
-    user_tasks = {}
-    count = 1
-
-    for task in information:
-        task_info = task.split(", ")
-
-        if username == task_info[0]:
-            user_tasks[count - 1] = task_info
-
-            print("----------------------------------------")
-            print(f"""Task #{count}
-    Assignee:       {task_info[0]}
-    Title:          {task_info[1]}
-    Description:    {task_info[2]}
-    Due Date:       {task_info[3]}
-    Assigned Date:  {task_info[4]}
-    Completed:      {task_info[5]}
-    """)
-        count += 1
-
-    print("----------------------------------------\n")
-
-    try:
-        task_number = int(input("Choose a task number to edit or mark a task as complete: (Enter -1 to "
-                                "return to menu): "))
-
-        if task_number == -1:
-            print()
-
-        elif (task_number - 1) in user_tasks:
-            task_choice = int(input("Choose between 1 - 2:\n1. Mark as Complete\n2. Edit Task\n: "))
-
-            # Marks the task complete
-            if task_choice == 1 and "No" in user_tasks[task_number - 1][5]:
-                user_tasks[task_number - 1][5] = "Yes\n"
-                print("Task Completed!\n\n")
-
-            elif task_choice == 1 and "Yes" in user_tasks[task_number - 1][5]:
-                print("Task Already Completed!\n\n")
-
-            # Edits the task
-            elif task_choice == 2 and "No" in user_tasks[task_number - 1][5]:
-                new_assignee = input("Enter a user to reassign this task to: (Leave Empty to Skip)"
-                                     "\n: ")
-                new_due_date = input("Enter new due date of this task (YYYY-MM-DD): (Leave Empty to Skip)\n: ")
-
-                # Does not edit the task and returns to the menu
-                if new_assignee == "" and new_due_date == "":
-                    print("Task Not Edited!!\n\n")
-
-                if new_due_date != "":
-
-                    # Checks if the due date is valid before changing it
-                    if check_date(new_due_date) == True:
-                        user_tasks[task_number - 1][3] = new_due_date
-
-                    else:
-                        print("Invalid Date Format! Please enter a valid due date!\n\n")
-
-                if new_assignee != "":
-
-                    # Checks if user exists before reassigning task
-                    if new_assignee in check_usernames():
-                        user_tasks[task_number - 1][0] = new_assignee
-
-                    else:
-                        print("Unable to reassign task! User does not exist!\n\n")
-
-                print("Task Edited Successfully!!\n\n")
-
-            elif task_choice == 2 and "Yes" in user_tasks[task_number - 1][5]:
-                print("Cannot edit complete tasks. Please choose a different task.\n\n")
-
-            else:
-                print("Invalid Option! Please choose between 1 - 2.\n\n")
-
-        else:
-            print("Invalid Choice!\nPlease select a valid task number!\n\n")
-
-        count = 1
-
-        # Update task information
         for task in information:
-            for index in user_tasks:
+            task_info = task.strip().split(", ")
+            task_info.append(index)     # Add index of each task
+            if username == task_info[0]:
+                user_tasks.append(task_info)
+            index += 1
+            #     print("----------------------------------------")
+            #     print(f"""Task #{count}
+            #         Assignee:       {task_info[0]}
+            #         Title:          {task_info[1]}
+            #         Description:    {task_info[2]}
+            #         Due Date:       {task_info[3]}
+            #         Assigned Date:  {task_info[4]}
+            #         Completed:      {task_info[5]}
+            #         """)
+            # count += 1
+            #
+            # print("----------------------------------------\n")
 
-                if count == (index + 1):
-                    task_info = ", ".join(user_tasks[index])
-
-                    information[index] = task_info
-
-            count += 1
-
-        with open("tasks.txt", "w") as write_file:
-            for task in information:
-                write_file.write(f"{task}")
-
-    except IndexError:
-        print("Task does not exist...\nPlease select an existing task number!\n\n")
-
-    except ValueError:
-        print("Invalid Choice!\nPlease select a valid task number!\n\n")
+    return user_tasks
 
 
-def generate_report():
+def get_all_tasks():
+    """
+    Get all tasks (allocated to any user) and display in terminal
+    """
+    user_tasks = []
+
+    with open("data/tasks.txt", "r+") as read_file:
+        information = read_file.readlines()
+
+        index = 0
+
+        for task in information:
+            task_info = task.strip().split(", ")
+            task_info.append(index)
+            user_tasks.append(task_info)
+
+            # print("----------------------------------------")
+            # print(f"""Task #{index+1}
+            #     Assignee:       {task_info[0]}
+            #     Title:          {task_info[1]}
+            #     Description:    {task_info[2]}
+            #     Due Date:       {task_info[3]}
+            #     Assigned Date:  {task_info[4]}
+            #     Completed:      {task_info[5]}
+            #     """)
+            index += 1
+
+        # print("----------------------------------------\n")
+
+    return user_tasks
+
+
+def generate_reports():
     """
     Generates the user and task overview text files from the user.txt and tasks.txt files
-
-    :return:
     """
 
     usernames = check_usernames()
@@ -302,10 +128,10 @@ def generate_report():
     user_information = {}
 
     # List stores all of the total, completed, incomplete, overdue tasks and
-    # the percentage of the incomplete and overdue tasks.
-    task_information = [0, 0, 0, 0, 0, 0]
+    # the percentage of the complete, incomplete and overdue tasks.
+    task_information = [0, 0, 0, 0, 0, 0, 0]
 
-    with open("tasks.txt", "r+") as read_file:
+    with open("data/tasks.txt", "r+") as read_file:
         tasks = read_file.readlines()
 
     # Stores total number of tasks in tasks.txt
@@ -337,7 +163,7 @@ def generate_report():
                 if "Yes" in task[5]:
                     completed_tasks += 1
 
-                if datetime.datetime.strptime(task[3], "%Y-%m-%d") < datetime.datetime.now() and "No" in task[5]:
+                if datetime.strptime(task[3], "%Y-%m-%d") < datetime.now() and "No" in task[5]:
                     overdue_tasks += 1
 
         # Prevent calculation errors from stoping the program
@@ -364,7 +190,7 @@ def generate_report():
             print("Division by 0 Calculation Found. Information Not Generated!")
 
     # Write each user's task information to user_overview.txt
-    with open("user_overview.txt", "w") as write_file:
+    with open("data/user_overview.txt", "w") as write_file:
 
         for u in user_information:
             write_file.write(f"""User: {u}
@@ -390,7 +216,7 @@ def generate_report():
         if "Yes" in task[5]:
             task_information[1] += 1
 
-        if datetime.datetime.strptime(task[3], "%Y-%m-%d") < datetime.datetime.now() and "No" in task[5]:
+        if datetime.strptime(task[3], "%Y-%m-%d") < datetime.now() and "No" in task[5]:
             task_information[3] += 1
 
     # Prevent calculation errors from stoping the program
@@ -400,108 +226,262 @@ def generate_report():
         if task_information[0] == 0:
             task_information[4] = 0
             task_information[5] = 0
+            task_information[6] = 0
         else:
-            task_information[4] = round((task_information[2] / task_information[0]) * 100, 2)
-            task_information[5] = round((task_information[3] / task_information[0]) * 100, 2)
+            task_information[4] = round((task_information[1] / task_information[0]) * 100, 2)
+            task_information[5] = round((task_information[2] / task_information[0]) * 100, 2)
+            task_information[6] = round((task_information[3] / task_information[0]) * 100, 2)
 
         # Write task information to task_overview.txt
-        with open("task_overview.txt", "w") as write_file:
+        with open("data/task_overview.txt", "w") as write_file:
             write_file.write(f"""Total Number of Tasks: {task_information[0]}
 Total Number of Completed Tasks: {task_information[1]}
 Total Number of Incomplete Tasks: {task_information[2]}
 Total Number of Overdue Tasks: {task_information[3]}
-Percentage of Incomplete Tasks: {task_information[4]}%
-Percentage of Overdue Tasks: {task_information[5]}%\n""")
+Percentage of Complete Tasks: {task_information[4]}%
+Percentage of Incomplete Tasks: {task_information[5]}%
+Percentage of Overdue Tasks: {task_information[6]}%\n""")
     except ZeroDivisionError:
         print("Division by 0 Calculation Found. Information Not Generated!")
 
-    print("Reports Generated!\n\n")
+    # print("Reports Generated!")
+
+    return task_information, user_information
 
 
-def display_statistics():
+@app.route("/", methods=["POST", "GET"])
+@app.route("/login", methods=["POST", "GET"])
+def login():
     """
-    This function will print the statistics about all the users
-    and tasks created in the text files.
+    Requests the user to login with their credentials before accessing the program
     """
-    total_tasks = 0
-    total_users = 0
 
-    with open("tasks.txt", "r+") as read_file:
-        total_tasks = len(read_file.readlines())
+    if request.method == "POST":
 
-    with open("user.txt", "r+") as read_file:
-        total_users = len(read_file.readlines())
+        username = request.form["username"]
+        password = request.form["password"]
 
-    print("Total Number of Users:", total_users)
+        # Open user text file to acquire all user credentials
+        with open("data/user.txt", "r+") as file:
+            information = file.readlines()
 
-    with open("task_overview.txt", "r+") as read_file:
-        task_overview = read_file.readlines()
-        for line in task_overview:
-            print(line)
+        # Checks all of the known users in the text file to validate username and password
+        for credentials in information:
+            user_info = credentials.split(", ")
+            user_info = "\n".join(user_info)
+            user_info = user_info.split()
 
-    with open("user_overview.txt", "r+") as read_file:
-        user_overview = read_file.readlines()
-        for line in user_overview:
-            print(line)
+            # Return the user's username upon successful login
+            if username in user_info and check_password_hash(user_info[1], password):
+                flash("Login successful.", "success")
+                session.permanent = True
+                session["username"] = username
+                return redirect(url_for("dashboard", username=username))
 
-
-# Call the function to generate reports by default
-generate_report()
-
-# Allows user access to the program upon successful login
-while username is not None:
-    print(f"Welcome, {username}!\nDate: {datetime.datetime.today().date()}\n\n")
-
-    # Displays menu options for admin user
-    if username == "admin":
-        # Request the user to choose a menu option
-        menu = input('''Select one of the following options:
-r - register a user
-a - add task
-va - view all tasks
-vm - view my tasks
-gr - generate statistics
-ds - display statistics 
-e - exit
-: ''').lower()
-
-    # Displays menu options for non-admin users
-    else:
-        menu = input('''Select one of the following options:
-a - add task
-va - view all tasks
-vm - view my tasks
-gr - generate statistics
-e - exit
-: ''').lower()
-
-    # Registers new users to the program
-    if menu == 'r' and username == "admin":
-        register()
-
-    # Adds new tasks to the program
-    elif menu == 'a':
-        add_task()
-
-    # Prints all of the user tasks added to the program
-    elif menu == 'va':
-        view_all()
-
-    # Prints all the tasks added to the program of the logged in user
-    elif menu == 'vm':
-        view_mine()
-
-    # Generates the reports
-    elif menu == 'gr':
-        generate_report()
-
-    # Prints the statistics of the users and tasks in the program
-    elif menu == 'ds' and username == "admin":
-        display_statistics()
-
-    elif menu == 'e':
-        print('Goodbye!!!')
-        exit()
+        # Return error message for invalid credentials
+        flash("Invalid Credentials!", "danger")
+        return redirect(url_for("login"))
 
     else:
-        print("You have entered an invalid input. Please try again\n")
+        # Check if user is logged in
+        if "username" in session:
+            flash("User already logged in.", "info")
+            return redirect(url_for("user"))
+
+        return render_template("authentication/login.html")
+
+
+@app.route("/logout")
+def logout():
+    """
+    Logs the user out of the session
+    """
+
+    session.pop("username", None)
+    flash("You have logged out successfully.", 'info')
+    return redirect(url_for("login"))
+
+
+@app.route("/register", methods=["POST", "GET"])
+def register():
+    """
+    Requests the user to enter new credentials before logging in to access the program
+    """
+
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+
+        # Verify if new user is valid
+        if username not in check_usernames() and password == confirm_password:
+            with open("data/user.txt", "a") as file:
+                file.writelines(f"\n{username}, {generate_password_hash(confirm_password)}")
+            flash("User registered successfully.", 'success')
+            return redirect(url_for("dashboard"))
+
+        elif username in check_usernames():
+            flash("User already exists! Try entering a different username.", "danger")
+
+        elif password != confirm_password:
+            flash("Passwords don't match! Please try again.", "danger")
+
+        return render_template("authentication/register.html")
+
+    else:
+        if "username" not in session or session["username"] != "admin":
+            flash("You do not have permission to access this page!", "danger")
+            return redirect(url_for("user"))
+
+        return render_template("authentication/register.html")
+
+
+@app.route("/dashboard")
+def dashboard():
+    """
+    Renders the dashboard page to display the user's task information
+    """
+    if "username" not in session:
+        flash("Session has expired. Login Required.", "info")
+        return redirect(url_for("login"))
+
+    return render_template('dashboard.html', username=session["username"],
+                           current_date=datetime.now().strftime('%A, %B %d, %Y'))
+
+
+@app.route("/add_task", methods=["POST", "GET"])
+def add_task():
+    """
+    Renders the page to add new tasks
+    """
+
+    if "username" not in session:
+        flash("Session has expired. Login Required.", "info")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        assignee = request.form["assignee"]
+        title = request.form["title"]
+        description = request.form["description"]
+        due_date = request.form["due_date"]
+        current_date = datetime.today().date().strftime("%Y-%m-%d")
+        task_status = "No"
+
+        if assignee not in check_usernames():
+            flash("Assignee (user) does not exist!", "danger")
+
+        elif not check_date(due_date):
+            flash("Invalid date format. Must use (YYYY-MM-DD)", "danger")
+
+        else:
+
+            # Format Title and Description values
+            title = title.replace(",", " ")
+            description = description.replace(",", " ")
+
+            with open("data/tasks.txt", "a") as write_file:
+                write_file.write(f"{assignee}, {title}, {description}, {due_date}, {current_date}, {task_status}\n")
+
+            flash("Task added successfully.", "success")
+            return redirect(url_for("dashboard"))
+
+    return render_template("add_task.html", users=check_usernames())
+
+
+@app.route("/view_tasks")
+def view_tasks():
+    """
+    Renders the page to view all tasks created.
+    """
+    if "username" not in session:
+        flash("Session has expired. Login Required.", "info")
+        return redirect(url_for("login"))
+
+    tasks = get_all_tasks()
+
+    if len(tasks) == 0:
+        flash("No tasks created.", "info")
+    return render_template("view_tasks.html", tasks=tasks)
+
+
+@app.route("/my_tasks")
+def my_tasks():
+    """
+    Renders the page to view all the user's tasks created.
+    """
+    if "username" not in session:
+        flash("Session has expired. Login Required.", "info")
+        return redirect(url_for("login"))
+
+    tasks = get_user_tasks(session["username"])
+    if len(tasks) == 0:
+        flash("No tasks created.", "info")
+
+    return render_template("my_tasks.html", tasks=tasks)
+
+
+@app.route("/edit_task/<int:task_id>", methods=["POST", "GET"])
+def edit_task(task_id):
+    """
+    Renders the page to let the user edit their selected task.
+    """
+    if "username" not in session:
+        flash("Session has expired. Login Required.", "info")
+        return redirect(url_for("login"))
+
+    tasks = get_user_tasks(session["username"])
+
+    # Check if the task selected is valid
+    if task_id < 0 or task_id >= len(tasks):
+        flash("Invalid Task ID", "danger")
+        return redirect(url_for("my_tasks"))
+
+    task = tasks[task_id]
+    index = task[-1]
+
+    if request.method == "POST":
+        mark_complete = request.form.get("mark_complete") == "on"
+        new_assignee = request.form["new_assignee"]
+        new_due_date = request.form["new_due_date"]
+
+        if new_assignee == "Keep current assignee":
+            new_assignee = session["username"]
+
+        task[0] = new_assignee
+        task[3] = new_due_date
+
+        if mark_complete:
+            task[5] = "Yes"
+        else:
+            task[5] = "No"
+
+        tasks = get_all_tasks()
+        tasks[index] = task
+
+        with open("data/tasks.txt", "w+") as write_file:
+            for task in tasks:
+                write_file.write(f"{task[0]}, {task[1]}, {task[2]}, {task[3]}, {task[4]}, {task[5]}\n")
+
+        flash("Task updated successfully.", "success")
+        return redirect(url_for("my_tasks"))
+
+    return render_template("edit_task.html", task=task, task_id=task_id, users=check_usernames())
+
+
+@app.route("/statistics")
+def statistics():
+    """
+    Renders the page to view all statistics about the tasks.
+    """
+
+    if "username" not in session or session["username"] != "admin":
+        flash("You do not have permission to access this page!", "danger")
+        return redirect(url_for("dashboard"))
+
+    task_information, user_information = generate_reports()
+
+    return render_template("statistics.html", task_information=task_information,
+                           user_information=user_information)
+
+if __name__ == "__main__":
+    app.run(debug=False)

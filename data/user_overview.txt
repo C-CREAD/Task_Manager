@@ -1,0 +1,7 @@
+User: admin
+            Assigned Tasks:             1
+            Assigned Task Percentage:   100.0%
+            Completed Task Percentage:  100.0%
+            Incomplete Task Percentage: 0.0%
+            Overdue Task Percentage:    0.0%
+----------------------------------------------------------

@@ -1,0 +1,74 @@
+{% extends "index.html" %}
+
+{% block title %}Statistics{% endblock %}
+
+{% block content %}
+<div class="row">
+
+    <!-- Task Overview -->
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Task Overview</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>Total Tasks</th>
+                                <td>{{ task_information[0] }}</td>
+                            </tr>
+                            <tr>
+                                <th>Completed Tasks</th>
+                                <td>{{ task_information[1] }} ({{ task_information[4] }}%)</td>
+                            </tr>
+                            <tr>
+                                <th>Incomplete Tasks</th>
+                                <td>{{ task_information[2] }} ({{ task_information[5] }}%)</td>
+                            </tr>
+                            <tr>
+                                <th>Overdue Tasks</th>
+                                <td>{{ task_information[3] }} ({{ task_information[6] }}%)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Overview -->
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h3 class="card-title">User Overview</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Assigned Tasks</th>
+                                <th>Assigned Task (%)</th>
+                                <th>Completed Task (%)</th>
+                                <th>Incomplete Task (%)</th>
+                                <th>Overdue Task (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in user_information %}
+                            <tr>
+                                <td>{{ user }}</td>
+                                <td>{{ user_information[user][0] }}</td>
+                                <td>{{ user_information[user][1] }}%</td>
+                                <td>{{ user_information[user][2] }}%</td>
+                                <td>{{ user_information[user][3] }}%</td>
+                                <td>{{ user_information[user][4] }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
