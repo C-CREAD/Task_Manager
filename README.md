@@ -1,4 +1,4 @@
-# Task_Manager
+# Task Manager (Terminal Version)
 
 ## Table of Contents
 - [Description](#description)
