@@ -1,4 +1,4 @@
-# Task_Manager (version 1.5 Flask: No Database)
+# Task_Manager (Flask Version v1.5: No Database)
 
 ## Table of Contents
 - [Description](#description)
