@@ -7,7 +7,7 @@
 - [Credits](#credits)
 
 ## Description
-This is a Python Capstone project that will demonstrate my Task Manager simulation. The project will allow the user to log in, create new users and tasks, and generate and display statistical reports from the text files. If you want to see the terminal version of this application, (click here.)[https://github.com/C-CREAD/Task_Manager/tree/flask_v1.5]
+This is a Python Capstone project that will demonstrate my Task Manager simulation. The project will allow the user to log in, create new users and tasks, and generate and display statistical reports from the text files. If you want to see the terminal version of this application, [click here.](https://github.com/C-CREAD/Task_Manager/tree/flask_v1.5)
 
 ## Installation
 To install this project on your computer, you can run the following commands:
