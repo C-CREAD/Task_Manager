@@ -7,7 +7,7 @@
 - [Credits](#credits)
 
 ## Description
-This version of the Python Capstone project will demonstrate my Task Manager simulation using the Flask Web Framework without any databases. Only text files (like the terminal version) will be used. 
+This version of the Python Capstone project will demonstrate my Task Manager simulation using the Flask Web Framework without any databases. Only text files (like the terminal version) will be used. To access the terminal version of the project, [click here](https://github.com/C-CREAD/Task_Manager)
 
 ## Installation
 To install this project on your computer, you can run the following commands:
